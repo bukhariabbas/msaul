@@ -2,3 +2,4 @@
 
 export(MSET.overlap.test)
 export(hypergeo.overlap.test)
+export(orthoverlap.test)
