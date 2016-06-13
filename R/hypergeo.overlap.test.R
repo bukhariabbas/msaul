@@ -1,7 +1,7 @@
 # author: Michael C. Saul
 # email: msaul [at] illinois.edu
 # project_start: 2015-04-29
-# last_edited: 2016-01-07
+# last_edited: 2016-06-09
 #
 #' Hypergeometric test of overlap function
 #' 
@@ -59,11 +59,23 @@ hypergeo.overlap.test = function(list1, list2, background1, background2, represe
   len.list2.in.universe = length(list2.in.universe)
   list1.list2.in.universe.overlap = overlap(list1.in.universe, list2.in.universe)
   len.list1.list2.in.universe.overlap = length(list1.list2.in.universe.overlap)
-  hypergeom.p.value = phyper(q = len.list1.list2.in.universe.overlap,
-                             m = len.list1.in.universe, 
-                             n = len.universe - len.list1.in.universe,
-                             k = len.list2.in.universe,
-                             lower.tail = ifelse(representation == "under", TRUE, FALSE))
+  # This set of conditions is built to resolve an issue brought up by Joe Troy.
+  # When the test resolves a universe to not contain a list of interest, the overrepresentation test
+  # was coming up with a p-value of 0. This is not right, but I didn't want to throw an error and break
+  # the function in loops. Thus, I revised to throw a warning and report the p-value as NA.
+  if (len.list1.in.universe == 0) {
+    warning("No item from list1 appears in the universe. A p-value is not calculable.")
+    hypergeom.p.value = NA
+  } else if (len.list2.in.universe == 0) {
+    warning("No item from list2 appears in the universe. A p-value is not calculable.")
+    hypergeom.p.value = NA
+  } else {
+    hypergeom.p.value = phyper(q = len.list1.list2.in.universe.overlap,
+                               m = len.list1.in.universe, 
+                               n = len.universe - len.list1.in.universe,
+                               k = len.list2.in.universe,
+                               lower.tail = ifelse(representation == "under", TRUE, FALSE))
+  }
   test.list = list(p.value = hypergeom.p.value,
                    alternative = ifelse(representation == "under","less","greater"),
                    method = ifelse(representation == "under",
