@@ -2,8 +2,7 @@
 % Please edit documentation in R/orthoverlap.test.R
 \name{orthoverlap.test}
 \alias{orthoverlap.test}
-\title{For four character vectors (list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2), this function computes a randomization-based p-value of the overlap.
-It can test for either overrepresentation or underrepresention.}
+\title{Orthogroup test for over- or underrepresentation}
 \usage{
 orthoverlap.test(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2,
   B = 30000, representation = "over")
@@ -22,5 +21,8 @@ orthoverlap.test(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2,
 \description{
 For four character vectors (list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2), this function computes a randomization-based p-value of the overlap.
 It can test for either overrepresentation or underrepresention.
+}
+\author{
+Michael C. Saul
 }
 

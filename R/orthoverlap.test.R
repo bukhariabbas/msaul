@@ -4,8 +4,11 @@
 # Started: 2015-04-29
 # Last edited: 2016-06-13
 #
+#' Orthogroup test for over- or underrepresentation
+#' 
 #' For four character vectors (list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2), this function computes a randomization-based p-value of the overlap.
 #' It can test for either overrepresentation or underrepresention.
+#' @author Michael C. Saul
 #' @param list1.s1 the first test list from species 1
 #' @param list2.s2 the second test list from species 2
 #' @param orthodb.index.s1 a data frame indexing IDs from list 1 to OrthoDB IDs
