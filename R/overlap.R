@@ -9,6 +9,7 @@
 #' @author Michael C. Saul
 #' @param vector1 the first character vector
 #' @param vector2 the second character vector
+#' @export
 #' @examples
 #' x = c("one", "two", "three", "four", "five")
 #' y = c("two", "four", "six", "eight", "ten")
