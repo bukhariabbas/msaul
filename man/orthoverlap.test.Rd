@@ -5,7 +5,7 @@
 \title{Orthogroup test for over- or underrepresentation}
 \usage{
 orthoverlap.test(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2,
-  B = 30000, representation = "over")
+  B = 30000, representation = "over", save.distribution = FALSE)
 }
 \arguments{
 \item{list1.s1}{the first test list from species 1}
@@ -16,7 +16,11 @@ orthoverlap.test(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2,
 
 \item{orthodb.index.s2}{a data frame indexing IDs from list 2 to OrthoDB IDs}
 
-\item{representation}{Test for overrepresentation or underrepresentation? Defaults to "over".}
+\item{B}{the number of randomizations to perform (defaults to 30000)}
+
+\item{representation}{test for overrepresentation or underrepresentation (defaults to "over")}
+
+\item{save.distribution}{write out distribution to output (defaults to FALSE)}
 }
 \description{
 For four character vectors (list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2), this function computes a randomization-based p-value of the overlap.
