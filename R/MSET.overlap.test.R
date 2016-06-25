@@ -2,10 +2,14 @@
 # Michael C. Saul
 # msaul [at] illinois.edu
 # Started: 2015-04-29
-# Last edited: 2016-01-07
-# 
+# Last edited: 2016-06-25
+#
+#' MSET randomization-based test for list over- or under-representation
+#'
 #' For four character vectors (list1, list2, background1, background2), this function computes a randomization-based p-value of the overlap.
 #' It can test for either overrepresentation or underrepresention.
+#' MSET is based on work from Eisinger et al., 2013, "Development of a versatile enrichment analysis tool reveals associations between the maternal brain and mental health disorders, including autism." BMC Neuroscience.
+#' 
 #' @param list1 the first test list
 #' @param list2 the second test list
 #' @param background1 the background for the first list

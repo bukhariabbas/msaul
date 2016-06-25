@@ -2,8 +2,7 @@
 % Please edit documentation in R/MSET.overlap.test.R
 \name{MSET.overlap.test}
 \alias{MSET.overlap.test}
-\title{For four character vectors (list1, list2, background1, background2), this function computes a randomization-based p-value of the overlap.
-It can test for either overrepresentation or underrepresention.}
+\title{MSET randomization-based test for list over- or under-representation}
 \usage{
 MSET.overlap.test(list1, list2, background1, background2, B = 30000,
   representation = "over")
@@ -22,6 +21,7 @@ MSET.overlap.test(list1, list2, background1, background2, B = 30000,
 \description{
 For four character vectors (list1, list2, background1, background2), this function computes a randomization-based p-value of the overlap.
 It can test for either overrepresentation or underrepresention.
+MSET is based on work from Eisinger et al., 2013, "Development of a versatile enrichment analysis tool reveals associations between the maternal brain and mental health disorders, including autism." BMC Neuroscience.
 }
 \examples{
 x = c("one", "two", "three", "four", "five")
