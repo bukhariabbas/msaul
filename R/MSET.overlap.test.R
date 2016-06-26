@@ -4,8 +4,9 @@
 # Started: 2015-04-29
 # Last edited: 2016-06-25
 #
-#' MSET randomization-based test for list over- or under-representation
+#' Modular single-set enrichment tool (MSET): randomization-based test for list over- or under-representation
 #'
+#' MSET was developed to compare gene lists.
 #' For four character vectors (list1, list2, background1, background2), this function computes a randomization-based p-value of the overlap.
 #' It can test for either overrepresentation or underrepresention.
 #' MSET is based on work from Eisinger et al., 2013, "Development of a versatile enrichment analysis tool reveals associations between the maternal brain and mental health disorders, including autism." BMC Neuroscience.
