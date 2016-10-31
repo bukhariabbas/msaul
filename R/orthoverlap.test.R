@@ -18,12 +18,14 @@
 # along with the msaul R package  If not, see <http://www.gnu.org/licenses/>.
 #
 # Started: 2015-04-29
-# Last edited: 2016-10-24
+# Last edited: 2016-10-31
 #
 #' Orthogroup test for over- or underrepresentation
 #'
 #' For four character vectors (list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2), this function computes a randomization-based p-value of the overlap.
 #' It can test for either overrepresentation or underrepresention.
+#' Orthoverlap uses a normal approximation of the binomial distribution to make scores from different distributions directly comparable.
+#' It calculates the p-value by comparing the Pearson correlation coefficient derived from data with orthology to a sample with orthology bootstrapped.
 #'
 #' @author Michael C. Saul
 #' @param list1.s1 the first test list from species 1
@@ -67,18 +69,22 @@ orthoverlap.test = function(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.
   # Generating a data frame to hold the orthogroup information
   orthodb.set = overlap(as.character(orthodb.index.s1$orthodb),as.character(orthodb.index.s2$orthodb))
   orthodb.set = data.frame(row.names=orthodb.set,
-                           numerator.s1 = rep(0.0, times = length(orthodb.set)),
-                           denominator.s1 = rep(0.0, times = length(orthodb.set)),
-                           numerator.s2 = rep(0.0, times = length(orthodb.set)),
-                           denominator.s2 = rep(0.0, times = length(orthodb.set)),
+                           size.s1 = rep(0, times = length(orthodb.set)),
+                           hits.s1 = rep(0, times = length(orthodb.set)),
                            score.s1 = rep(0.0, times = length(orthodb.set)),
-                           score.s2 = rep(0.0, times = length(orthodb.set)))
+                           binom.p.s1 = rep(0.0, times = length(orthodb.set)),
+                           size.s2 = rep(0, times = length(orthodb.set)),
+                           hits.s2 = rep(0, times = length(orthodb.set)),
+                           score.s2 = rep(0.0, times = length(orthodb.set)),
+                           binom.p.s2 = rep(0.0, times = length(orthodb.set)))
   
   # Getting counts of total genes in each orthogroup
   odb.n.s1 = aggregate(id ~ orthodb, data = orthodb.index.s1, FUN = length)
   row.names(odb.n.s1) = odb.n.s1$orthodb
+  orthodb.set[,"size.s1"] = odb.n.s1[row.names(orthodb.set),"id"]
   odb.n.s2 = aggregate(id ~ orthodb, data = orthodb.index.s2, FUN = length)
   row.names(odb.n.s2) = odb.n.s2$orthodb
+  orthodb.set[,"size.s2"] = odb.n.s2[row.names(orthodb.set),"id"]
   
   # Getting counts of genes in each orthogroup in list1.s1
   list1.odb = data.frame(id = as.character(list1))
@@ -89,11 +95,7 @@ orthoverlap.test = function(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.
   list1.genes.in.orthodb = sum(list1.n$id)
   list1.n$bg.sum = odb.n.s1[list1.n$orthodb,"id"]
   list1.p = sum(list1.n$id) / nrow(orthodb.index.s1) # need to figure out exactly what this should be
-  orthodb.set$denominator.s1 = sqrt(1 / (odb.n.s1[row.names(orthodb.set),"id"] * list1.p * (1 - list1.p)))
-  orthodb.set$numerator.s1 = rep(0.0, times = nrow(orthodb.set))
-  
-  # Scoring each orthogroup for list1.s1
-  list1.n$numerator = ifelse(list1.n$id - (list1.n$bg.sum * list1.p) > 0, list1.n$id - (list1.n$bg.sum * list1.p), 0) 
+  orthodb.set[row.names(list1.n),"hits.s1"] = list1.n$id
   
   # Getting counts of genes in each orthogroup in list2.s2
   list2.odb = data.frame(id = as.character(list2))
@@ -104,20 +106,21 @@ orthoverlap.test = function(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.
   list2.genes.in.orthodb = sum(list2.n$id)
   list2.n$bg.sum = odb.n.s2[list2.n$orthodb,"id"]
   list2.p = sum(list2.n$id) / nrow(orthodb.index.s2) # need to figure out exactly what this should be
-  orthodb.set$denominator.s2 = sqrt(1 / (odb.n.s2[row.names(orthodb.set),"id"] * list2.p * (1 - list2.p)))
-  orthodb.set$numerator.s2 = rep(0.0, times = nrow(orthodb.set))
+  orthodb.set[row.names(list2.n),"hits.s2"] = list2.n$id
   
-  # Scoring each orthogroup for list2.s2
-  list2.n$numerator = ifelse(list2.n$id - (list2.n$bg.sum * list2.p) > 0, list2.n$id - (list2.n$bg.sum * list2.p), 0) 
+  # Integrating information from each individual species in the orthoDB data frame into Z-Scores
+  orthodb.set$score.s1 = (orthodb.set$hits.s1 - (orthodb.set$size.s1 * list1.p)) / sqrt(orthodb.set$size.s1 * list1.p * (1 - list1.p))
+  orthodb.set$score.s2 = (orthodb.set$hits.s2 - (orthodb.set$size.s2 * list2.p)) / sqrt(orthodb.set$size.s2 * list2.p * (1 - list2.p))
   
-  # Integrating information from each individual species in the orthoDB data frame
-  orthodb.set[row.names(list1.n),"numerator.s1"] = list1.n$numerator
-  orthodb.set[row.names(list2.n),"numerator.s2"] = list2.n$numerator
-  orthodb.set$score.s1 = orthodb.set$numerator.s1 / orthodb.set$denominator.s1
-  orthodb.set$score.s2 = orthodb.set$numerator.s2 / orthodb.set$denominator.s2
+  for (j in 1:nrow(orthodb.set)) {
+    orthodb.set[j,"binom.p.s1"] = sum(dbinom(orthodb.set[j,"hits.s1"]:orthodb.set[j,"size.s1"],orthodb.set[j,"size.s1"],list1.p))
+    orthodb.set[j,"binom.p.s2"] = sum(dbinom(orthodb.set[j,"hits.s2"]:orthodb.set[j,"size.s2"],orthodb.set[j,"size.s2"],list2.p))
+  }
+  
+  orthodb.set$individual.score = orthodb.set$score.s1 * orthodb.set$score.s2
   
   # Calculating score
-  empirical.score = sum(orthodb.set[,"score.s1"] * orthodb.set[,"score.s2"])
+  empirical.score = cor(orthodb.set$score.s1, orthodb.set$score.s2, method = "pearson")
   
   # Creating a histogram for the calculation of p-values
   randomization.histogram = B
@@ -127,11 +130,11 @@ orthoverlap.test = function(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.
     random.distribution = numeric()
   }
   
-  # Doing randomization iterations (B iterations)
+  # Randomizing over orthology (B iterations)
   for (i in 1:B) {
     random.list = data.frame(x1 = sample(orthodb.set$score.s1),
                              x2 = sample(orthodb.set$score.s2))
-    random.score = sum(random.list$x1 * random.list$x2)
+    random.score = cor(random.list$x1, random.list$x2, method = "pearson")
     if (save.distribution) {
       random.distribution = c(random.distribution, random.score)
     }
@@ -164,8 +167,8 @@ orthoverlap.test = function(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.
                                         "less",
                                         "greater"),
                    method = ifelse(representation == "under",
-                                   "Orthology-Weighted Randomization-Based Test for Underrepresentation",
-                                   "Orthology-Weighted Randomization-Based Test for Overrepresentation"),
+                                   "Orthology-Weighted Randomization-Based Test for Depletion",
+                                   "Orthology-Weighted Randomization-Based Test for Enrichment"),
                    data.name = paste("list 1 = ", len.list1,
                                      ", list 2 = ", len.list2,
                                      ", empirical score = ", round(empirical.score, digits = 2),
@@ -175,6 +178,9 @@ orthoverlap.test = function(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.
   if (save.distribution) {
     test.list[["distribution"]] = random.distribution
   }
+  test.list[["orthodb.set"]] = orthodb.set
+  test.list[["p.s1"]] = list1.p
+  test.list[["p.s2"]] = list2.p
   attr(test.list,"class") = "htest"
   return(test.list)
 }
