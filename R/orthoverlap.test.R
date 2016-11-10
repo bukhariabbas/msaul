@@ -101,7 +101,7 @@ orthoverlap.test = function(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.
   list1.p = sum(list1.n$id) / nrow(orthodb.index.s1)
   orthodb.set[row.names(list1.n),"hits.s1"] = list1.n$id
   total.s1 = sum(orthodb.set$size.s1)
-  hits.s1 = sum(orthodb.set$hits.1)
+  hits.s1 = sum(orthodb.set$hits.s1)
   
   # Getting counts of genes in each orthogroup in list2.s2
   list2.odb = data.frame(id = as.character(list2))
