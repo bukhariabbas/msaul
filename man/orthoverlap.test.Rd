@@ -25,6 +25,8 @@ orthoverlap.test(list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2,
 \description{
 For four character vectors (list1.s1, list2.s2, orthodb.index.s1, orthodb.index.s2), this function computes a randomization-based p-value of the overlap.
 It can test for either overrepresentation or underrepresention.
+Orthoverlap uses a normal approximation of the hypergeometric distribution to make scores from different distributions directly comparable.
+It calculates the p-value by comparing the Pearson correlation coefficient derived from data with orthology to a sample with orthology bootstrapped.
 }
 \author{
 Michael C. Saul
